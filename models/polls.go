@@ -450,7 +450,7 @@ UPDATE polls
 			fmt.Errorf("Transaction failed: %v", err.Error())
 	}
 
-	PurgeCache(h.ItemTypes[h.ItemTypeConversation], m.ID)
+	PurgeCache(h.ItemTypes[h.ItemTypePoll], m.ID)
 	PurgeCache(h.ItemTypes[h.ItemTypeMicrocosm], m.MicrocosmID)
 
 	return http.StatusOK, nil

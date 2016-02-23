@@ -515,7 +515,7 @@ func MarkAllAsRead(profileID int64) (int, error) {
 	_, err = tx.Exec(`
 DELETE FROM read
  WHERE profile_id = $1
-   AND item_type_id IN (2, 6, 9, 16)`,
+   AND item_type_id IN (2, 6, 9, 10, 16)`,
 		profileID,
 	)
 	if err != nil {

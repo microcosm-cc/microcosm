@@ -122,6 +122,13 @@ var (
 		"/api/v1/{type:profiles}/{profile_id:[0-9]+}/attributes":                                 controller.AttributesHandler,
 		"/api/v1/{type:profiles}/{profile_id:[0-9]+}/attributes/{key:[0-9a-zA-Z_-]+}":            controller.AttributeHandler,
 
+		"/api/v1/{type:questions}":                                                      controller.QuestionsHandler,
+		"/api/v1/{type:questions}/{question_id:[0-9]+}":                                 controller.QuestionHandler,
+		"/api/v1/{type:questions}/{question_id:[0-9]+}/attributes":                      controller.AttributesHandler,
+		"/api/v1/{type:questions}/{question_id:[0-9]+}/attributes/{key:[0-9a-zA-Z_-]+}": controller.AttributeHandler,
+		"/api/v1/{type:questions}/{question_id:[0-9]+}/lastcomment":                     controller.LastCommentHandler,
+		"/api/v1/{type:questions}/{question_id:[0-9]+}/newcomment":                      controller.NewCommentHandler,
+
 		"/api/v1/resolve": controller.Redirect404Handler,
 
 		"/api/v1/roles":                                                 controller.RolesHandler,

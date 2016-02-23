@@ -62,6 +62,7 @@ func (c *Context) GetItemTypeAndItemID() (string, int64, int64, int, error) {
 		"microcosm_id",
 		"poll_id",
 		"profile_id",
+		"question_id",
 		"site_id",
 		"update_id",
 		"update_type_id",

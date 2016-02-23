@@ -62,6 +62,12 @@ var (
 		c.CacheCounts:  "pr_c%d",
 		c.CacheOptions: "pr_o%d",
 	}
+	mcQuestionKeys = map[int]string{
+		c.CacheDetail:     "q_d%d",
+		c.CacheSummary:    "q_s%d",
+		c.CacheItem:       "q_i%d",
+		c.CacheBreadcrumb: "q_b%d",
+	}
 	mcRoleKeys = map[int]string{
 		c.CacheDetail: "r_d%d",
 	}
@@ -155,6 +161,9 @@ func PurgeCache(itemTypeID int64, itemID int64) {
 		}
 
 	case h.ItemTypes[h.ItemTypeQuestion]:
+		for _, mcKeyFmt := range mcQuestionKeys {
+			c.Delete(fmt.Sprintf(mcKeyFmt, itemID))
+		}
 
 	case h.ItemTypes[h.ItemTypeRole]:
 
@@ -269,6 +278,11 @@ func PurgeCacheByScope(scope int, itemTypeID int64, itemID int64) {
 		}
 
 	case h.ItemTypes[h.ItemTypeQuestion]:
+		for mcKey, mcKeyFmt := range mcQuestionKeys {
+			if mcKey == scope {
+				c.Delete(fmt.Sprintf(mcKeyFmt, itemID))
+			}
+		}
 
 	case h.ItemTypes[h.ItemTypeRole]:
 		for mcKey, mcKeyFmt := range mcRoleKeys {
@@ -309,6 +323,7 @@ func GetItemCacheKeys(itemTypeID int64) map[int]string {
 		return mcPollKeys
 
 	case h.ItemTypes[h.ItemTypeQuestion]:
+		return mcQuestionKeys
 
 	default:
 	}

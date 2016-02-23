@@ -1034,6 +1034,7 @@ func SendUpdatesForNewItemInAMicrocosm(
 		conversation ConversationType
 		event        EventType
 		poll         PollType
+		question     QuestionType
 	)
 
 	switch item.(type) {
@@ -1057,6 +1058,13 @@ func SendUpdatesForNewItemInAMicrocosm(
 		itemType = h.ItemTypePoll
 		itemID = poll.ID
 		createdByID = poll.Meta.CreatedByID
+
+	case QuestionType:
+		question = item.(QuestionType)
+		itemTypeID = h.ItemTypes[h.ItemTypeQuestion]
+		itemType = h.ItemTypeQuestion
+		itemID = question.ID
+		createdByID = question.Meta.CreatedByID
 
 	default:
 		glog.Errorf("%s %+v", "type not known", item)

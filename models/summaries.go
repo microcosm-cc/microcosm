@@ -247,6 +247,21 @@ func GetSummary(
 		return summary, status, err
 
 	case h.ItemTypes[h.ItemTypeQuestion]:
+		summary, status, err := GetQuestionSummary(
+			siteID,
+			itemID,
+			profileID,
+		)
+		if err != nil {
+			glog.Errorf(
+				"GetQuestionSummary(%d, %d, %d) %+v",
+				siteID,
+				itemID,
+				profileID,
+				err,
+			)
+		}
+		return summary, status, err
 
 	case h.ItemTypes[h.ItemTypeSite]:
 		summary, status, err := GetSite(siteID)

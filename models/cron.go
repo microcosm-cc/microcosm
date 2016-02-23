@@ -353,6 +353,7 @@ SELECT item_type_id
 		updateConversations bool
 		updateEvents        bool
 		updatePolls         bool
+		updateQuestions     bool
 	)
 	for rows.Next() {
 		var view View
@@ -372,6 +373,8 @@ SELECT item_type_id
 			updateEvents = true
 		case h.ItemTypes[h.ItemTypePoll]:
 			updatePolls = true
+		case h.ItemTypes[h.ItemTypeQuestion]:
+			updateQuestions = true
 		}
 
 		views = append(views, view)
@@ -442,6 +445,25 @@ UPDATE polls p
          GROUP BY item_id
        ) AS v
  WHERE p.poll_id = v.item_id;`)
+		if err != nil {
+			glog.Error(err)
+			return
+		}
+	}
+
+	// Update questions
+	if updateQuestions {
+		_, err = tx.Exec(`--UpdateViewCounts
+UPDATE questions q
+   SET view_count = view_count + v.views
+  FROM (
+        SELECT item_id
+              ,COUNT(*) AS views
+          FROM views
+         WHERE item_type_id = 10
+         GROUP BY item_id
+       ) AS v
+ WHERE q.question_id = v.item_id;`)
 		if err != nil {
 			glog.Error(err)
 			return

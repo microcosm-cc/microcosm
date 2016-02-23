@@ -172,30 +172,30 @@ INSERT INTO metrics(
 		return err
 	}
 
-	// This is a separate update for 2 reasons:
-	// 1) We are updating *all* rows from yesterday
-	// 2) If this throws an error, then at least we've already updated today's
-	//    stats
-	pageviews, visits, uniques, err := GoogleAnalytics(start, end)
-	if err != nil {
-		glog.Errorf("UpdateMetrics: %v", err.Error())
-		return err
-	}
+	// 	// This is a separate update for 2 reasons:
+	// 	// 1) We are updating *all* rows from yesterday
+	// 	// 2) If this throws an error, then at least we've already updated today's
+	// 	//    stats
+	// 	pageviews, visits, uniques, err := GoogleAnalytics(start, end)
+	// 	if err != nil {
+	// 		glog.Errorf("UpdateMetrics: %v", err.Error())
+	// 		return err
+	// 	}
 
-	_, err = db.Exec(`
-UPDATE metrics
-   SET pageviews = $1
-      ,visits = $2
-      ,uniques = $3
- WHERE job_timestamp::date = (NOW() - interval '1 day')::DATE;`,
-		pageviews,
-		visits,
-		uniques,
-	)
-	if err != nil {
-		glog.Errorf("UpdateMetrics: %+v", err)
-		return err
-	}
+	// 	_, err = db.Exec(`
+	// UPDATE metrics
+	//    SET pageviews = $1
+	//       ,visits = $2
+	//       ,uniques = $3
+	//  WHERE job_timestamp::date = (NOW() - interval '1 day')::DATE;`,
+	// 		pageviews,
+	// 		visits,
+	// 		uniques,
+	// 	)
+	// 	if err != nil {
+	// 		glog.Errorf("UpdateMetrics: %+v", err)
+	// 		return err
+	// 	}
 
 	return nil
 }

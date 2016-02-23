@@ -80,6 +80,7 @@ func V1Handler(w http.ResponseWriter, r *http.Request) {
 				h.GetLink("microcosm", "", h.ItemTypeMicrocosm, 0),
 				h.GetLink("poll", "", h.ItemTypePoll, 0),
 				h.GetLink("profile", "", h.ItemTypeProfile, 0),
+				h.GetLink("question", "", h.ItemTypeQuestion, 0),
 				h.LinkType{Rel: "site", Href: "/api/v1/site"},
 				h.GetLink("update", "", h.ItemTypeUpdate, 0),
 				h.GetLink("watcher", "", h.ItemTypeWatcher, 0),

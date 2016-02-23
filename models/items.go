@@ -176,7 +176,8 @@ func IncrementItemCommentCount(itemTypeID int64, itemID int64) {
 
 	if itemTypeID != h.ItemTypes[h.ItemTypeConversation] &&
 		itemTypeID != h.ItemTypes[h.ItemTypeEvent] &&
-		itemTypeID != h.ItemTypes[h.ItemTypePoll] {
+		itemTypeID != h.ItemTypes[h.ItemTypePoll] &&
+		itemTypeID != h.ItemTypes[h.ItemTypeQuestion] {
 		return
 	}
 
@@ -214,6 +215,17 @@ UPDATE events
 UPDATE polls
    SET comment_count = comment_count + 1
  WHERE poll_id = $1`,
+			itemID,
+		)
+		if err != nil {
+			glog.Error(err)
+			return
+		}
+	case h.ItemTypes[h.ItemTypeQuestion]:
+		_, err = db.Exec(`--Update Question Comment Count
+UPDATE questions
+   SET comment_count = comment_count + 1
+ WHERE question_id = $1`,
 			itemID,
 		)
 		if err != nil {
@@ -289,6 +301,17 @@ UPDATE events
 UPDATE polls
    SET comment_count = comment_count - 1
  WHERE poll_id = $1`,
+			itemID,
+		)
+		if err != nil {
+			glog.Error(err)
+			return
+		}
+	case h.ItemTypes[h.ItemTypeQuestion]:
+		_, err = db.Exec(`--Update Poll Comment Count
+UPDATE questions
+   SET comment_count = comment_count - 1
+ WHERE question_id = $1`,
 			itemID,
 		)
 		if err != nil {
@@ -385,7 +408,7 @@ p AS (
                            AND f.item_id = m2.microcosm_id
          WHERE f.microcosm_id = $2::BIGINT
            AND (
-                   f.item_type_id IN (6, 9)
+                   f.item_type_id IN (6, 9, 10)
                 OR (
                        f.item_type_id = 2
                    AND m2.microcosm_id IS NOT NULL
