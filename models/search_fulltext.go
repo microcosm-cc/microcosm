@@ -280,8 +280,34 @@ func searchFullText(
 		}
 	}
 
+	var filterSRToMicrocosms string
+	if filterMicrocosmIDs != "" {
+		filterSRToMicrocosms = `
+       AND si.microcosm_id IN (SELECT microcosm_id FROM m)`
+	}
+
+	var filterSRToItemTypes string
+	if filterItemTypes != "" {
+		filterSRToItemTypes = strings.Replace(
+			strings.Replace(
+				filterItemTypes,
+				`f.item_type_id`,
+				`si.item_type_id`,
+				-1,
+			),
+			`f.parent_item_type_id`,
+			`si.parent_item_type_id`,
+			-1,
+		)
+	}
+
+	var filterSRHasAttachmentsJoin string
+	if filterHasAttachmentsJoin != "" {
+		filterSRHasAttachmentsJoin = strings.Replace(filterHasAttachmentsJoin, `f.item`, `si.item`, -1)
+	}
+
 	// Now we define our SQL
-	sqlWith := `
+	sqlQuery := `
 WITH m AS (
     SELECT m.microcosm_id
       FROM microcosms m
@@ -289,9 +315,9 @@ WITH m AS (
                                    AND p.item_type_id = 2
                                    AND p.item_id = m.microcosm_id
                                    AND p.profile_id = $2
-           LEFT JOIN ignores_expanded i ON i.profile_id = $2
-                                       AND i.item_type_id = 2
-                                       AND i.item_id = m.microcosm_id
+      LEFT JOIN ignores_expanded i ON i.profile_id = $2
+                                  AND i.item_type_id = 2
+                                  AND i.item_id = m.microcosm_id
      WHERE m.site_id = $1
        AND m.is_deleted IS NOT TRUE
        AND m.is_moderated IS NOT TRUE
@@ -300,10 +326,38 @@ WITH m AS (
                (p.can_read IS NOT NULL AND p.can_read IS TRUE)
             OR (get_effective_permissions($1,m.microcosm_id,2,m.microcosm_id,$2)).can_read IS TRUE
            )
-)`
-
-	sqlFromWhere := `
-             FROM search_index si
+), sr AS (
+    SELECT si.item_type_id
+          ,si.item_id
+      FROM search_index si` + filterSRHasAttachmentsJoin + `
+          ,plainto_tsquery($3) AS query
+     WHERE si.site_id = $1
+       AND si.` + fullTextScope + `_vector @@ query` +
+		filterSRToMicrocosms +
+		filterSRToItemTypes + `
+)
+SELECT total
+      ,item_type_id
+      ,item_id
+      ,parent_item_type_id
+      ,parent_item_id
+      ,last_modified
+      ,rank
+      ,ts_headline(` + fullTextScope + `_text, query) AS highlight
+      ,has_unread(item_type_id, item_id, $2)
+  FROM (
+           SELECT COUNT(*) OVER() AS total
+                 ,f.item_type_id
+                 ,f.item_id
+                 ,f.parent_item_type_id
+                 ,f.parent_item_id
+                 ,f.last_modified
+                 ,ts_rank_cd(si.` + fullTextScope + `_vector, query, 8) AS rank
+                 ,si.` + fullTextScope + `_text
+                 ,query.query
+             FROM sr
+                  JOIN search_index si ON sr.item_type_id = si.item_type_id
+                                      AND sr.item_id = si.item_id
                   JOIN flags f ON f.item_type_id = si.item_type_id
                               AND f.item_id = si.item_id
              LEFT JOIN ignores i ON i.profile_id = $2
@@ -330,32 +384,12 @@ WITH m AS (
               AND f.parent_is_moderated IS NOT TRUE
               AND f.item_is_deleted IS NOT TRUE
               AND f.item_is_moderated IS NOT TRUE
-              AND si.` + fullTextScope + `_vector @@ query` + `
               AND (
                       -- Things that are public by default
                       COALESCE(f.parent_item_type_id, f.item_type_id) = 3
                    OR -- Things in microcosms
                       COALESCE(f.microcosm_id, f.item_id) IN (SELECT microcosm_id FROM m)` + filterThingsInHuddles + `
-                  )`
-
-	sqlQuery := sqlWith + `
-SELECT item_type_id
-      ,item_id
-      ,parent_item_type_id
-      ,parent_item_id
-      ,last_modified
-      ,rank
-      ,ts_headline(` + fullTextScope + `_text, query) AS highlight
-      ,has_unread(item_type_id, item_id, $2)
-  FROM (
-           SELECT f.item_type_id
-                 ,f.item_id
-                 ,f.parent_item_type_id
-                 ,f.parent_item_id
-                 ,f.last_modified
-                 ,ts_rank_cd(si.` + fullTextScope + `_vector, query, 8) AS rank
-                 ,si.` + fullTextScope + `_text
-                 ,query.query` + sqlFromWhere + `
+                  )
             ORDER BY ` + orderBy + `
             LIMIT $4
            OFFSET $5
@@ -368,33 +402,9 @@ SELECT item_type_id
 		return m, http.StatusInternalServerError, err
 	}
 
-	// The totals query
+	// The main query
 	queryID := `Search` + randomString()
 	queryTimer := time.NewTimer(searchTimeout)
-	go func() {
-		<-queryTimer.C
-		db.Exec(`SELECT pg_cancel_backend(pid)
-  FROM pg_stat_activity
- WHERE state = 'active'
-   AND query LIKE '--` + queryID + `%'`)
-	}()
-	var total int64
-	err = db.QueryRow(
-		`--`+queryID+
-			sqlWith+`SELECT COUNT(*)`+sqlFromWhere,
-		siteID,
-		profileID,
-		m.Query.Query,
-	).Scan(&total)
-	if err != nil {
-		glog.Error(err)
-		return m, http.StatusInternalServerError, err
-	}
-	queryTimer.Stop()
-
-	// The main query
-	queryID = `Search` + randomString()
-	queryTimer = time.NewTimer(searchTimeout)
 	go func() {
 		<-queryTimer.C
 		db.Exec(`SELECT pg_cancel_backend(pid)
@@ -441,7 +451,7 @@ SELECT item_type_id
 			return m, http.StatusInternalServerError,
 				merrors.MicrocosmError{
 					ErrorCode:    24,
-					ErrorMessage: "The search query took too long and has been cancelled",
+					ErrorMessage: "Too many results to process, please make your search more specific.",
 				}
 		default:
 			glog.Errorf(
@@ -459,10 +469,12 @@ SELECT item_type_id
 	}
 	defer rows.Close()
 
+	var total int64
 	rs := []SearchResult{}
 	for rows.Next() {
 		var r SearchResult
 		err = rows.Scan(
+			&total,
 			&r.ItemTypeID,
 			&r.ItemID,
 			&r.ParentItemTypeID,
