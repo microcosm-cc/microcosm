@@ -173,6 +173,12 @@ $BODY$
              WHERE item_type_id = 10
                AND item_id = NEW.question_id;
 
+            UPDATE search_index
+               SET microcosm_id = NEW.microcosm_id
+             WHERE parent_item_type_id = 10
+               AND parent_item_id = NEW.question_id
+               AND microcosm_id != NEW.microcosm_id;
+
             END IF;
 
             RETURN NEW;
