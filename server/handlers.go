@@ -31,6 +31,7 @@ var (
 		"/api/v1/{type:profiles}/{profile_id:[0-9]+}/attachments/{fileHash:[0-9A-Za-z]+}":        controller.AttachmentHandler,
 		"/api/v1/{type:profiles}/{profile_id:[0-9]+}/attributes":                                 controller.AttributesHandler,
 		"/api/v1/{type:profiles}/{profile_id:[0-9]+}/attributes/{key:[0-9a-zA-Z_-]+}":            controller.AttributeHandler,
+		"/api/v1/{type:profiles}/{profile_id:[0-9]+}/ymg":                                        controller.YMGHandler,
 
 		"/api/v1/reserved/{subdomain:[0-9a-zA-Z]+}": controller.SiteReservedHandler,
 
@@ -50,6 +51,7 @@ var (
 		"/api/v1/{type:comments}/{comment_id:[0-9]+}/incontext":                                  controller.CommentContextHandler,
 		"/api/v1/{type:comments}/{comment_id:[0-9]+}/attributes":                                 controller.AttributesHandler,
 		"/api/v1/{type:comments}/{comment_id:[0-9]+}/attributes/{key:[0-9a-zA-Z_-]+}":            controller.AttributeHandler,
+		"/api/v1/{type:comments}/{comment_id:[0-9]+}/ymg":                                        controller.YMGHandler,
 
 		"/api/v1/{type:conversations}":                                                          controller.ConversationsHandler,
 		"/api/v1/{type:conversations}/{conversation_id:[0-9]+}":                                 controller.ConversationHandler,
@@ -57,6 +59,7 @@ var (
 		"/api/v1/{type:conversations}/{conversation_id:[0-9]+}/attributes/{key:[0-9a-zA-Z_-]+}": controller.AttributeHandler,
 		"/api/v1/{type:conversations}/{conversation_id:[0-9]+}/lastcomment":                     controller.LastCommentHandler,
 		"/api/v1/{type:conversations}/{conversation_id:[0-9]+}/newcomment":                      controller.NewCommentHandler,
+		"/api/v1/{type:conversations}/{conversation_id:[0-9]+}/ymg":                             controller.YMGHandler,
 
 		"/api/v1/{type:events}":                                                   controller.EventsHandler,
 		"/api/v1/{type:events}/{event_id:[0-9]+}":                                 controller.EventHandler,
@@ -67,6 +70,7 @@ var (
 		"/api/v1/{type:events}/{event_id:[0-9]+}/attributes/{key:[0-9a-zA-Z_-]+}": controller.AttributeHandler,
 		"/api/v1/{type:events}/{event_id:[0-9]+}/lastcomment":                     controller.LastCommentHandler,
 		"/api/v1/{type:events}/{event_id:[0-9]+}/newcomment":                      controller.NewCommentHandler,
+		"/api/v1/{type:events}/{event_id:[0-9]+}/ymg":                             controller.YMGHandler,
 
 		"/api/v1/files":                                controller.FilesHandler,
 		"/api/v1/files/{fileHash:[0-9A-Za-z]+}.{null}": controller.FileHandler,
@@ -99,6 +103,7 @@ var (
 		"/api/v1/{type:microcosms}/{microcosm_id:[0-9]+}/roles/{role_id:[0-9]+}/criteria":                       controller.RoleCriteriaHandler,
 		"/api/v1/{type:microcosms}/{microcosm_id:[0-9]+}/roles/{role_id:[0-9]+}/criteria/{criterion_id:[0-9]+}": controller.RoleCriterionHandler,
 		"/api/v1/{type:microcosms}/{microcosm_id:[0-9]+}/roles/{role_id:[0-9]+}/members":                        controller.RoleMembersHandler,
+		"/api/v1/{type:microcosms}/{microcosm_id:[0-9]+}/ymg":                                                   controller.YMGHandler,
 		"/api/v1/{type:microcosms}/tree":                                                                        controller.MicrocosmsTreeHandler,
 
 		"/api/v1/out/{short_url:[2-9a-zA-Z]+}": controller.RedirectHandler,
@@ -111,6 +116,7 @@ var (
 		"/api/v1/{type:polls}/{poll_id:[0-9]+}/newcomment":                      controller.NewCommentHandler,
 		"/api/v1/{type:polls}/{poll_id:[0-9]+}/attributes":                      controller.AttributesHandler,
 		"/api/v1/{type:polls}/{poll_id:[0-9]+}/attributes/{key:[0-9a-zA-Z_-]+}": controller.AttributeHandler,
+		"/api/v1/{type:polls}/{poll_id:[0-9]+}/ymg":                             controller.YMGHandler,
 
 		"/api/v1/{type:profiles}":                                                                controller.ProfilesHandler,
 		"/api/v1/{type:profiles}/options":                                                        controller.ProfileOptionsHandler,
@@ -121,6 +127,7 @@ var (
 		"/api/v1/{type:profiles}/{profile_id:[0-9]+}/attachments/{fileHash:[0-9A-Za-z]+}":        controller.AttachmentHandler,
 		"/api/v1/{type:profiles}/{profile_id:[0-9]+}/attributes":                                 controller.AttributesHandler,
 		"/api/v1/{type:profiles}/{profile_id:[0-9]+}/attributes/{key:[0-9a-zA-Z_-]+}":            controller.AttributeHandler,
+		"/api/v1/{type:profiles}/{profile_id:[0-9]+}/ymg":                                        controller.YMGHandler,
 
 		"/api/v1/{type:questions}":                                                      controller.QuestionsHandler,
 		"/api/v1/{type:questions}/{question_id:[0-9]+}":                                 controller.QuestionHandler,
@@ -128,6 +135,7 @@ var (
 		"/api/v1/{type:questions}/{question_id:[0-9]+}/attributes/{key:[0-9a-zA-Z_-]+}": controller.AttributeHandler,
 		"/api/v1/{type:questions}/{question_id:[0-9]+}/lastcomment":                     controller.LastCommentHandler,
 		"/api/v1/{type:questions}/{question_id:[0-9]+}/newcomment":                      controller.NewCommentHandler,
+		"/api/v1/{type:questions}/{question_id:[0-9]+}/ymg":                             controller.YMGHandler,
 
 		"/api/v1/resolve": controller.Redirect404Handler,
 

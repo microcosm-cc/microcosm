@@ -160,24 +160,28 @@ $BODY$
 
         ELSIF (TG_OP = 'UPDATE') THEN
 
-            IF NEW.microcosm_id <> OLD.microcosm_id OR
-               NEW.title <> OLD.title THEN
+            IF NEW.title <> OLD.title THEN
         
-            UPDATE search_index
-               SET microcosm_id = NEW.microcosm_id
-                  ,title_text = NEW.title
-                  ,title_vector = setweight(to_tsvector(NEW.title), 'C')
-                  ,document_text = NEW.title
-                  ,document_vector = setweight(to_tsvector(NEW.title), 'C')
-                  ,last_modified = NOW()
-             WHERE item_type_id = 10
-               AND item_id = NEW.question_id;
+                UPDATE search_index
+                   SET title_text = NEW.title
+                      ,title_vector = setweight(to_tsvector(NEW.title), 'C')
+                      ,document_text = NEW.title
+                      ,document_vector = setweight(to_tsvector(NEW.title), 'C')
+                      ,last_modified = NOW()
+                 WHERE item_type_id = 10
+                   AND item_id = NEW.question_id;
 
-            UPDATE search_index
-               SET microcosm_id = NEW.microcosm_id
-             WHERE parent_item_type_id = 10
-               AND parent_item_id = NEW.question_id
-               AND microcosm_id != NEW.microcosm_id;
+            END IF;
+
+            IF NEW.microcosm_id <> OLD.microcosm_id THEN
+
+                UPDATE search_index
+                   SET microcosm_id = NEW.microcosm_id
+                 WHERE (
+                           (item_type_id = 10 AND item_id = NEW.question_id)
+                        OR (parent_item_type_id = 10 AND parent_item_id = NEW.question_id)
+                       )
+                   AND microcosm_id <> NEW.microcosm_id;
 
             END IF;
 
