@@ -115,6 +115,9 @@ func (m *YMGType) Update() (int, error) {
 			m.ID,
 			m.Value,
 		)
+
+		PurgeCache(m.ItemTypeID, m.ItemID)
+
 		return http.StatusOK, nil
 	}
 
@@ -138,6 +141,8 @@ INSERT INTO ymg(
 		return http.StatusInternalServerError, err
 	}
 
+	PurgeCache(m.ItemTypeID, m.ItemID)
+
 	return http.StatusOK, nil
 }
 
@@ -155,6 +160,8 @@ DELETE FROM ymg WHERE ymg_id = $1
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
+
+	PurgeCache(m.ItemTypeID, m.ItemID)
 
 	return http.StatusOK, nil
 }
