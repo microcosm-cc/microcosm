@@ -14,9 +14,7 @@ const webGainsAffiliateID string = "104653"
 var webgainsDomainParts = []string{
 	"awcycles",
 	"cyclesurgery",
-	"leisurelakebikes",
 	"runnersneed",
-	"scotbycycles",
 	"webgains",
 }
 
@@ -49,12 +47,8 @@ func (m *webgainsLink) getDestination() (bool, string) {
 		programID = 2730
 	case "www.cyclesurgery.com":
 		programID = 5505
-	case "www.leisurelakesbikes.com":
-		programID = 5195
 	case "www.runnersneed.com":
 		programID = 5503
-	case "www.scotbycycles.co.uk":
-		programID = 8969
 	case "www.westbrookcycles.co.uk":
 		programID = 7793
 	default:
